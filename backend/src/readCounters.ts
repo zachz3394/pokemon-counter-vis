@@ -32,5 +32,3 @@ export const getAllCounterData = () => {
 
   return genCounterData;
 }
-
-console.log(getAllCounterData());
