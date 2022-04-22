@@ -1,20 +1,25 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import fs from 'fs';
-import path from 'path'
+import path from 'path';
+import { aliasMap } from './aliases';
 
 export const getCounterDataForGen = (genJson: string) => {
   const jsonData = require('../data' + '/' + genJson);
-  const pokemonNames = Object.keys(jsonData);
+  const pokemonNames = Object.keys(jsonData).map((key: string) => {
+    return aliasMap.has(key) ? aliasMap.get(key) : key
+  });
   const pokenamesRegex = new RegExp(pokemonNames.join('|'), 'g');
   const allCounters: Map<string, string[]> = new Map();
 
   for (const key in jsonData) {
+    const pokemonName = aliasMap.has(key) ? aliasMap.get(key) : key;
+
     const comments: string = jsonData[key]['comments'];
     if (comments) {
       const countersString = comments.substring(comments.indexOf('Checks and Counters'));
       const counters = Array.from(countersString.matchAll(pokenamesRegex)).map((match) => match[0]);
       const uniqueCounters = [...new Set(counters)];
-      allCounters.set(key, uniqueCounters.filter((x) => x !== key))
+      allCounters.set(pokemonName, uniqueCounters.filter((x) => x !== pokemonName))
     }
   }
 
