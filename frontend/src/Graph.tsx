@@ -63,6 +63,22 @@ const CounterGraph = () => {
     }
   }
 
+  const recolorNodesTo = (nodeIds: string[], hexCode: string) => {
+    const set = new Set(nodeIds);
+    setNodes((prevNodes: any) => 
+      prevNodes.map((x: any) => {
+        if (set.has(x.id)) {
+          return {
+            id: x.id,
+            label: x.id,
+            color: hexCode,
+          }
+        }
+        return x;
+      }),
+    );
+  }
+
   const events = {
     doubleClick: () => {
       rearrangeToCircle();
@@ -72,34 +88,19 @@ const CounterGraph = () => {
       setDrawn(true);
       if (event.nodes.length > 0) {
         const node = event.nodes[0];
-        setNodes((prevNodes: any) => 
-          prevNodes.map((x: any) => {
-            if (x.id === node) {
-              return {
-                id: node,
-                label: node,
-                color: '#f0fa51',
-              }
-            }
-            return x;
-          }),
-        )
+        recolorNodesTo([node], '#f0fa51');
+
+        const allConnected = network.getConnectedNodes(node);
+        recolorNodesTo(allConnected, '#fa5151');
+
+        const pointsTo = network.getConnectedNodes(node, 'to');
+        recolorNodesTo(pointsTo, '#51fa8e');
       }
     },
     deselectNode: (event: any) => {
       const node = event.previousSelection.nodes[0].id;
-      setNodes((prevNodes: any) => 
-        prevNodes.map((x: any) => {
-          if (x.id === node) {
-            return {
-              id: node,
-              label: node,
-              color: '#97C2FC',
-            }
-          }
-          return x;
-        })
-      );
+      const allConnected = network.getConnectedNodes(node);
+      recolorNodesTo([node, ...allConnected], '#97C2FC');
     },
   };
   return (
