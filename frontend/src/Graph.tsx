@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Graph from "react-graph-vis";
-import { getGen } from "./Api";
+import { getCounterDataForGen } from "./readCounters";
 
 
 const CounterGraph = () => {
@@ -14,19 +14,18 @@ const CounterGraph = () => {
   const [edgesDataset] = useState(new Map());
 
   useEffect(() => {
-    getGen('gen8ubers').then(res => {
-      setIds(res.map((x: any) => x[0]).sort());
-      res.forEach((x: any) => {
-        nodesDataset.set(x[0], {id: x[0], label: x[0]});
-      });
-      res.forEach((x: any) => {
-        edgesDataset.set(x[0], x[1].map((y: any) => {
-          return { from: y, to: x[0], hidden: true }
-        }));
-      })
-      setNodes(Array.from(nodesDataset.values()));
-      setEdges(Array.from(edgesDataset.values()).flat());
+    const counterData = getCounterDataForGen('gen8ubers.json');
+    setIds(Array.from(counterData.keys()).sort());
+
+    counterData.forEach((counteredBy: string[], name: string) => {
+      nodesDataset.set(name, {id: name, label: name});
+      edgesDataset.set(name, counteredBy.map((counter: any) => {
+        return { from: counter, to: name, hidden: true }
+      }));
     });
+
+    setNodes(Array.from(nodesDataset.values()));
+    setEdges(Array.from(edgesDataset.values()).flat());
   }, [nodesDataset, edgesDataset]);
 
   const options = {
