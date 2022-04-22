@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/zachz3394/pokemon-counter-vis/static/css/main.073c9b0a.css",
+    "main.js": "/zachz3394/pokemon-counter-vis/static/js/main.ad1c2020.js",
+    "static/js/787.cda612ba.chunk.js": "/zachz3394/pokemon-counter-vis/static/js/787.cda612ba.chunk.js",
+    "index.html": "/zachz3394/pokemon-counter-vis/index.html",
+    "main.073c9b0a.css.map": "/zachz3394/pokemon-counter-vis/static/css/main.073c9b0a.css.map",
+    "main.ad1c2020.js.map": "/zachz3394/pokemon-counter-vis/static/js/main.ad1c2020.js.map",
+    "787.cda612ba.chunk.js.map": "/zachz3394/pokemon-counter-vis/static/js/787.cda612ba.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.073c9b0a.css",
+    "static/js/main.ad1c2020.js"
+  ]
+}
