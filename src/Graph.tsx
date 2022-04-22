@@ -9,12 +9,13 @@ const CounterGraph = () => {
   const [nodes, setNodes] = useState([] as any[]);
   const [edges, setEdges] = useState([] as any[]);
   const [hasDrawn, setDrawn] = useState(false);
+  const [gen, setGen] = useState('gen8ou.json');
 
   const [nodesDataset] = useState(new Map());
   const [edgesDataset] = useState(new Map());
 
   useEffect(() => {
-    const counterData = getCounterDataForGen('gen8ubers.json');
+    const counterData = getCounterDataForGen(gen);
     setIds(Array.from(counterData.keys()).sort());
 
     counterData.forEach((counteredBy: string[], name: string) => {
@@ -26,7 +27,7 @@ const CounterGraph = () => {
 
     setNodes(Array.from(nodesDataset.values()));
     setEdges(Array.from(edgesDataset.values()).flat());
-  }, [nodesDataset, edgesDataset]);
+  }, [nodesDataset, edgesDataset, gen]);
 
   const options = {
     autoResize: true,
