@@ -4,61 +4,112 @@ import { getGen } from "./Api";
 
 
 const CounterGraph = () => {
-  const [pending, setPending] = useState(false);
-  const [graph, setGraph] = useState({
-    nodes: [
-      { id: 1, label: "Node 1", title: "node 1 tootip text" },
-      { id: 2, label: "Node 2", title: "node 2 tootip text" },
-      { id: 3, label: "Node 3", title: "node 3 tootip text" },
-      { id: 4, label: "Node 4", title: "node 4 tootip text" },
-      { id: 5, label: "Node 5", title: "node 5 tootip text" }
-    ],
-    edges: [
-      { from: 1, to: 2 },
-      { from: 1, to: 3 },
-      { from: 2, to: 4 },
-      { from: 2, to: 5 }
-    ]
-  });
+  const [ids, setIds] = useState([] as any[]);
+  const [network, setNetwork] = useState({} as any);
+  const [nodes, setNodes] = useState([] as any[]);
+  const [edges, setEdges] = useState([] as any[]);
+  const [hasDrawn, setDrawn] = useState(false);
 
   useEffect(() => {
-    setPending(true);
     getGen('gen8ubers').then(res => {
-      console.log(res)
+      setIds(res.map((x: any) => x[0]).sort());
       const nodes = res.map((x: any) => {
         return {id: x[0], label: x[0]}
       });
+      setNodes(nodes);
       const edges = res.flatMap((x: any) => {
         return x[1].map((y: any) => {
-          return { from: y, to: x[0]}
+          return { from: y, to: x[0] }
         });
       });
-      setGraph({edges, nodes})
-
-      setPending(false);
+      setEdges(edges);
     });
   }, []);
 
   const options = {
+    autoResize: true,
     layout: {
-      hierarchical: false
+      improvedLayout: true,
+      hierarchical: false,
     },
     edges: {
-      color: "#000000"
+      color: '#000000',
     },
-    height: "500px"
+    height: '100%',
+    width: '100%',
+    physics: {
+      enabled: false,
+    },
+    nodes: {
+      shape: 'hexagon'
+    }
   };
 
-  const events = {
-    select: function(event: any) {
-      var { nodes, edges } = event;
+  const rearrangeToCircle = () => {
+    const radius = 800;
+    const d = 2 * Math.PI / ids.length
+    ids.forEach(function(id, i) {
+      var x = radius * Math.cos(d * i - 0.5 * Math.PI)
+      var y = radius * Math.sin(d * i - 0.5 * Math.PI)
+      network!.moveNode(id, x, y)
+    });
+    network.fit();
+  }
+
+  const resizeOnce = () => { 
+    if(!hasDrawn) {
+      rearrangeToCircle();
+      network.off('afterDrawing', resizeOnce);
     }
+  }
+
+  const events = {
+    doubleClick: () => {
+      rearrangeToCircle();
+    },
+    afterDrawing: resizeOnce,
+    click: (event: any) => {
+      setDrawn(true);
+      if (event.nodes.length > 0) {
+        const node = event.nodes[0];
+        setNodes((prevNodes: any) => 
+          prevNodes.map((x: any) => {
+            if (x.id === node) {
+              return {
+                id: node,
+                label: node,
+                color: '#f0fa51',
+              }
+            }
+            return x;
+          }),
+        )
+      }
+    },
+    deselectNode: (event: any) => {
+      const node = event.previousSelection.nodes[0].id;
+      setNodes((prevNodes: any) => 
+        prevNodes.map((x: any) => {
+          if (x.id === node) {
+            return {
+              id: node,
+              label: node,
+              color: '#97C2FC',
+            }
+          }
+          return x;
+        })
+      );
+    },
   };
   return (
     <Graph
-      graph={graph}
+      graph={{nodes, edges}}
       options={options}
       events={events}
+      getNetwork={(network: any) => {
+        setNetwork(network)
+      }}
     />
   );
 }

@@ -4,7 +4,8 @@ import path from 'path'
 
 export const getCounterDataForGen = (genJson: string) => {
   const jsonData = require('../data' + '/' + genJson);
-  const pokenamesRegex = new RegExp(Object.keys(jsonData).join('|'), 'g');
+  const pokemonNames = Object.keys(jsonData);
+  const pokenamesRegex = new RegExp(pokemonNames.join('|'), 'g');
   const allCounters: Map<string, string[]> = new Map();
 
   for (const key in jsonData) {
@@ -17,6 +18,11 @@ export const getCounterDataForGen = (genJson: string) => {
     }
   }
 
+  for (const name of pokemonNames) {
+    if (!allCounters.has(name)) {
+      allCounters.set(name, [])
+    }
+  }
   return allCounters;
 }
 
