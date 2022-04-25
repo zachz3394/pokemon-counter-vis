@@ -78,7 +78,7 @@ const CounterGraph = () => {
     },
     nodes: {
       size: 20,
-      shape: 'hexagon',
+      shape: 'dot',
     }
   };
 
