@@ -143,8 +143,8 @@ const CounterGraph = () => {
 
   const selectNode = (nodeId: string) => {
     recolorNodesTo([nodeId], SELECTED);
-    const allConnected = network.getConnectedNodes(nodeId, 'from');
-    recolorNodesTo(allConnected, COUNTERED);
+    const connectedFrom = network.getConnectedNodes(nodeId, 'from');
+    recolorNodesTo(connectedFrom, COUNTERED);
     const pointsTo = network.getConnectedNodes(nodeId, 'to');
     recolorNodesTo(pointsTo, COUNTERS);
     const connectedEdges = network.getConnectedEdges(nodeId);
@@ -206,6 +206,14 @@ const CounterGraph = () => {
   const drawerContents = () => {
     if (prevNodeId) {
       const originalName = getOriginalName(prevNodeId);
+      const connectedFrom = network.getConnectedNodes(prevNodeId, 'from');
+      const connectedTo = network.getConnectedNodes(prevNodeId, 'to');
+      const goodVs = connectedTo.sort().map((nodeId: string) => {
+        return (<Typography>{nodeId}</Typography>);
+      });
+      const badVs = connectedFrom.sort().map((nodeId: string) => {
+        return (<Typography>{nodeId}</Typography>);
+      });
       return (
       <div
         style={{
@@ -213,18 +221,44 @@ const CounterGraph = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '200px',
+          width: '320px',
           padding: '32px 16px',
-          gap: '16px',
+          gap: '24px',
         }}
       >
-        <Typography variant='h5'>
+        <Typography variant='h4'>
           {prevNodeId}
         </Typography>
         <img alt={`${prevNodeId}.gif`} src={`https://www.smogon.com/dex/media/sprites/xy/${originalName}.gif`} />
         <Button variant='outlined' target='_blank' href={reconstructSmogonLink(prevNodeId)}>
           Smogon Analysis
         </Button>
+        <div style={{
+          display: 'flex',
+          width: '100%',
+          justifyContent: 'space-around',
+        }}>
+          <div style={{
+            display: 'flex',
+            flex: 1,
+            flexDirection: 'column',
+          }}>
+            <Typography variant='h6'>
+              Good vs:
+            </Typography>
+            {goodVs.length > 0 ? goodVs : <Typography variant='caption'>Missing Data</Typography>}
+          </div>
+          <div style={{
+            display: 'flex',
+            flex: 1,
+            flexDirection: 'column',
+          }}>
+            <Typography variant='h6'>
+              Bad vs:
+            </Typography>
+            {badVs.length > 0 ? badVs : <Typography variant='caption'>Missing Data</Typography>}
+          </div>
+        </div>
       </div>
       )
     }
@@ -302,7 +336,7 @@ const CounterGraph = () => {
         anchor='right'
         variant='temporary'
         sx={{
-          display: { xs: 'block', sm: 'none' }
+          display: { xs: 'block', md: 'none' }
         }}
         open={drawer}
         onClose={toggleDrawer(false)}
@@ -313,7 +347,7 @@ const CounterGraph = () => {
         anchor='right'
         variant='persistent'
         sx={{
-          display: { xs: 'none', sm: 'block' },
+          display: { xs: 'none', md: 'block' },
         }}
         open={drawer}
         onClose={toggleDrawer(false)}
