@@ -51,7 +51,7 @@ const CounterGraph = () => {
   const [drawer, setDrawer] = useState(false);
   const [modal, setModal] = useState(true);
   const theme = useTheme();
-  const fullScreenDialog = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreenDialog = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [nodesDataset] = useState(new Map());
   const [edgesDataset] = useState(new Map());
@@ -232,10 +232,10 @@ const CounterGraph = () => {
       const connectedFrom = network.getConnectedNodes(prevNodeId, 'from');
       const connectedTo = network.getConnectedNodes(prevNodeId, 'to');
       const goodVs = connectedTo.sort().map((nodeId: string) => {
-        return (<Typography>{nodeId}</Typography>);
+        return (<Typography align='center'>{nodeId}</Typography>);
       });
       const badVs = connectedFrom.sort().map((nodeId: string) => {
-        return (<Typography>{nodeId}</Typography>);
+        return (<Typography align='center'>{nodeId}</Typography>);
       });
       return (
       <div
@@ -244,9 +244,9 @@ const CounterGraph = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '320px',
           padding: '32px 16px',
           gap: '24px',
+          width: fullScreenDialog ? undefined : '320px',
         }}
       >
         <Typography variant='h4'>
@@ -266,20 +266,20 @@ const CounterGraph = () => {
             flex: 1,
             flexDirection: 'column',
           }}>
-            <Typography variant='h6'>
+            <Typography variant='h6' align='center'>
               Good vs:
             </Typography>
-            {goodVs.length > 0 ? goodVs : <Typography variant='caption'>Missing Data</Typography>}
+            {goodVs.length > 0 ? goodVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
           </div>
           <div style={{
             display: 'flex',
             flex: 1,
             flexDirection: 'column',
           }}>
-            <Typography variant='h6'>
+            <Typography variant='h6' align='center'>
               Bad vs:
             </Typography>
-            {badVs.length > 0 ? badVs : <Typography variant='caption'>Missing Data</Typography>}
+            {badVs.length > 0 ? badVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
           </div>
         </div>
       </div>
@@ -422,25 +422,32 @@ const CounterGraph = () => {
         </div>
         <Link sx={{position: 'absolute', top: '216px', left: '76px'}} onClick={handleOpenModal}>What is this?</Link>
       </div>
-      <Drawer
-        anchor='right'
-        variant='temporary'
+      <Dialog
+        fullScreen={true}
         sx={{
-          display: { xs: 'block', md: 'none' }
+          display: { xs: 'block', sm: 'none' },
         }}
         open={drawer}
-        ModalProps={{
-          keepMounted: true,
-        }}
         onClose={toggleDrawer(false)}
       >
+        <IconButton
+          onClick={toggleDrawer(false)}
+          sx={{
+            position: 'absolute',
+            left: '16px',
+            top: '16px',
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
         {drawerContents()}
-      </Drawer>
+      </Dialog>
       <Drawer
         anchor='right'
         variant='persistent'
         sx={{
-          display: { xs: 'none', md: 'block' },
+          display: { xs: 'none', sm: 'block' },
+          width: '320px',
         }}
         open={drawer}
         onClose={toggleDrawer(false)}
