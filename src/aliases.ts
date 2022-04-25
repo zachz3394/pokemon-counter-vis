@@ -1,4 +1,4 @@
-const aliases = {
+const pokemonAliases = {
   'Necrozma-Dusk-Mane':   'Necrozma-DM',
   'Necrozma-Dawn-Wings':  'Necrozma-DW',
   'Calyrex-Shadow':       'Calyrex-S',
@@ -78,4 +78,30 @@ const aliases = {
   'Wormadam-Sandy':       'Wormadam-G',
 }
 
-export const aliasMap = new Map(Object.entries(aliases));
+const genAliases = {
+  'gen8': 'ss',
+  'gen7': 'sm',
+  'gen6': 'xy',
+  'gen5': 'bw',
+  'gen4': 'dp',
+  'gen3': 'rs',
+  'gen2': 'gs',
+  'gen1': 'rb',
+}
+
+const metaAliases = {
+  'anythinggoes': 'ag',
+  'lc': 'lc',
+  'nationaldex': 'national-dex',
+  'nfe': 'nfe',
+  'ou': 'ou',
+  'pu': 'pu',
+  'ru': 'ru',
+  'ubers': 'uber',
+  'uu': 'uu',
+  'zu': 'zu',
+}
+
+export const pokemonAliasMap = new Map(Object.entries(pokemonAliases));
+export const genAliasMap = new Map(Object.entries(genAliases));
+export const metaAliasMap = new Map(Object.entries(metaAliases));

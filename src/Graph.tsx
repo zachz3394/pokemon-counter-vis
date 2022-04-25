@@ -1,8 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Graph from "react-graph-vis";
 import { getCounterDataForGen } from "./readCounters";
 import { Button, Switch, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { DEFAULT, COUNTERED, COUNTERS, BORDER, SELECTED } from './colors';
+import { genAliasMap, metaAliasMap, pokemonAliasMap } from "./aliases";
+
+import '../node_modules/vis-network/dist/dist/vis-network.css';
 
 
 const usageJsons = [
@@ -23,7 +27,7 @@ const CounterGraph = () => {
   const [network, setNetwork] = useState({} as any);
   const [nodes, setNodes] = useState([] as any[]);
   const [edges, setEdges] = useState([] as any[]);
-  const [gen, setGen] = useState('gen8ou.json');
+  const [format, setFormat] = useState('gen8ou.json');
   const [hidden, setHidden] = useState(true);
   const [drawn, setDrawn] = useState(0);
   const [prevNodeId, setPrevNodeId] = useState(undefined as any);
@@ -31,24 +35,31 @@ const CounterGraph = () => {
 
   const [nodesDataset] = useState(new Map());
   const [edgesDataset] = useState(new Map());
+  const [reverseAliasMap] = useState(new Map());
 
   useEffect(() => {
-    const counterData = getCounterDataForGen(gen);
+    for (const [name, alias] of pokemonAliasMap.entries()) {
+      reverseAliasMap.set(alias, name);
+    }
+  }, []);
+
+  useEffect(() => {
+    const counterData = getCounterDataForGen(format);
 
     nodesDataset.clear()
     edgesDataset.clear()
 
     counterData.forEach((counteredBy: string[], name: string) => {
-      nodesDataset.set(name, {id: name, label: name});
+      nodesDataset.set(name, {id: name, label: name, title: reconstructSmogonLink(name) });
       edgesDataset.set(name, counteredBy.map((counter: any) => {
-        return { from: counter, to: name, hidden: hidden }
+        return { from: counter, to: name, hidden: hidden };
       }));
     });
 
     setIds(Array.from(counterData.keys()).sort());
     setNodes(Array.from(nodesDataset.values()));
     setEdges(Array.from(edgesDataset.values()).flat());
-  }, [nodesDataset, edgesDataset, gen, hidden]);
+  }, [nodesDataset, edgesDataset, format, hidden]);
 
   const options = {
     autoResize: true,
@@ -89,6 +100,16 @@ const CounterGraph = () => {
     }
   }
 
+  const reconstructSmogonLink = (nodeId: string) => {
+    const baseUrl = 'https://www.smogon.com/dex';
+    const formatGen = format.substring(0, 4);
+    const formatMeta = format.substring(4, format.indexOf('.'))
+    const genCode = genAliasMap.get(formatGen);
+    const metaCode = metaAliasMap.get(formatMeta);
+    const pokemonCode = (reverseAliasMap.get(nodeId) || nodeId).replaceAll(' ', '-').toLowerCase();
+    return `${baseUrl}/${genCode}/pokemon/${pokemonCode}/${metaCode}`;
+  }
+
   const recolorNodesTo = (nodeIds: string[], hexCode: string) => {
     for (const nodeId of nodeIds) {
       nodesDataset.set(nodeId, {
@@ -100,9 +121,9 @@ const CounterGraph = () => {
     setNodes(Array.from(nodesDataset.values()));
   }
 
-  const hideEdges = (edgeIds: string[], show: boolean = true) => {
+  const updateEdges = (edgeIds: string[], show: boolean = true) => {
     for (const edgeId of edgeIds) {
-      network.updateEdge(edgeId, { hidden: show });
+      network.updateEdge(edgeId, { hidden: show, });
     }
   }
 
@@ -111,18 +132,18 @@ const CounterGraph = () => {
       const allConnected = network.getConnectedNodes(nodeId);
       recolorNodesTo([nodeId, ...allConnected], DEFAULT);
       const connectedEdges = network.getConnectedEdges(nodeId);
-      hideEdges(connectedEdges, hidden);
+      updateEdges(connectedEdges, hidden);
     }
   }
 
   const selectNode = (nodeId: string) => {
     recolorNodesTo([nodeId], SELECTED);
-    const allConnected = network.getConnectedNodes(nodeId);
+    const allConnected = network.getConnectedNodes(nodeId, 'from');
     recolorNodesTo(allConnected, COUNTERED);
     const pointsTo = network.getConnectedNodes(nodeId, 'to');
     recolorNodesTo(pointsTo, COUNTERS);
     const connectedEdges = network.getConnectedEdges(nodeId);
-    hideEdges(connectedEdges, false);
+    updateEdges(connectedEdges, false);
   }
 
   const events = {
@@ -149,9 +170,9 @@ const CounterGraph = () => {
     }
   };
 
-  const handleChangeUsage = (event: SelectChangeEvent) => {
+  const handleChangeFormat = (event: SelectChangeEvent) => {
     setLoading(true);
-    setGen(event.target.value);
+    setFormat(event.target.value);
     setDrawn(0);
   }
   
@@ -198,8 +219,8 @@ const CounterGraph = () => {
       >
         <Select 
           autoWidth
-          onChange={handleChangeUsage}
-          value={gen}
+          onChange={handleChangeFormat}
+          value={format}
           style={{
             backgroundColor: 'white',
           }}

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 // import fs from 'fs';
 // import path from 'path';
-import { aliasMap } from './aliases';
+import { pokemonAliasMap } from './aliases';
 
 const createAliasMap = (jsonData: any) => {
   const mapAliasToComments = new Map();
@@ -15,7 +15,7 @@ const createAliasMap = (jsonData: any) => {
     }
     return 0;
   }).forEach((key: any) => {
-    mapAliasToComments.set(aliasMap.get(key) || key, jsonData[key]['comments']);
+    mapAliasToComments.set(pokemonAliasMap.get(key) || key, jsonData[key]['comments']);
   });
   return mapAliasToComments;
 }
