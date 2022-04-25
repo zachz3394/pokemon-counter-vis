@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Graph from "react-graph-vis";
 import { getCounterDataForGen } from "./readCounters";
-import { Button, Drawer, Switch, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, Button, Drawer, Switch, Link, Modal, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { DEFAULT, COUNTERED, COUNTERS, BORDER, SELECTED } from './colors';
 import { genAliasMap, metaAliasMap, pokemonAliasMap } from "./aliases";
 
@@ -33,6 +33,7 @@ const CounterGraph = () => {
   const [prevNodeId, setPrevNodeId] = useState(undefined as any);
   const [loading, setLoading] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [modal, setModal] = useState(true);
 
   const [nodesDataset] = useState(new Map());
   const [edgesDataset] = useState(new Map());
@@ -189,6 +190,10 @@ const CounterGraph = () => {
     setHidden(!event.target.checked);
   }
 
+  const handleOpenModal = () => setModal(true);
+
+  const handleCloseModal = () => setModal(false);
+
   const toggleDrawer =
     (open: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -266,6 +271,57 @@ const CounterGraph = () => {
 
   return (
     <div style={{height: '100%', width: '100%'}}>
+      <div style={{
+        position: 'absolute',
+        left: '16px',
+        bottom: '16px',
+      }}>
+        Copyright © 2022 Zachary Zhu
+      </div>
+      <Modal
+        open={modal}
+        onClose={handleCloseModal}
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 800,
+          bgcolor: 'background.paper',
+          borderRadius: '5px',
+          boxShadow: 24,
+          padding: '32px'
+        }}>
+          <Typography variant='h6'>
+            Overview
+          </Typography>
+          <Typography variant='body1' gutterBottom>
+            This is a rough draft of a website created to visualize checks and counters between the Pokemon in each competitive metagame, as judged by Smogon analyses.
+          </Typography>
+
+          <Typography variant='h6'>
+            How to Use
+          </Typography>
+          <Typography variant='body1' gutterBottom>
+            Click on a Pokemon to display its counters, along with the Pokemon that it counters. Pokemon that are countered by the currently selected Pokemon are colored in green, and Pokemon that counter the currently selected Pokemon are colored in red. Please read the disclaimer below regarding potentially erroneous/confusing interactions between pairs of Pokemon that appear to counter each other.
+
+            Clicking on a Pokemon also opens a sidebar, which displays the counter information for that Pokemon. This sidebar also contains a link to the Smogon analysis page for that Pokemon, which is the source from which the Checks and Counters data were generated.
+          </Typography>
+
+          <Typography variant='h6'>
+            Methods
+          </Typography>
+          <Typography variant='body1'>
+            The data was extracted from the Checks and Counters section from Smogon's analyses, located at {<Link target='_blank' href='https://github.com/pkmn/smogon'>https://github.com/pkmn/smogon</Link>}. While the analyses in this repository are updated regularly, the current iteration of this website uses static analysis files.
+
+            A Pokemon is considered to be countered by any Pokemon that appear in the Checks and Counters section of its analysis.
+
+            *DISCLAIMER* Do note that the checks and counters data is extracted without any cleaning or post-processing, and so they may contain confusing information such as two Pokemon mutually countering each other. I do not take any responsibility for the information displayed in this graph; if any interactions appear to be incorrect, verify them from the Smogon analysis page for each Pokemon, which is linked to from the sidebar that appears when a Pokemon is selected.
+          </Typography>
+
+        </Box>
+      </Modal>
       <div
         style={{
           zIndex: 2,
@@ -286,51 +342,57 @@ const CounterGraph = () => {
           position: 'absolute',
           left: '64px',
           top: '64px',
-          height: '192px',
           zIndex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-around',
-          backgroundColor: DEFAULT,
-          padding: '8px 16px 0px',
-          borderRadius: '5px',
-          color: BORDER,
-          borderStyle: 'solid',
-          borderWidth: '2px',
-          borderColor: BORDER,
         }}
       >
-        <Select 
-          autoWidth
-          onChange={handleChangeFormat}
-          value={format}
+        <div
           style={{
-            backgroundColor: 'white',
+            height: '192px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-around',
+            backgroundColor: DEFAULT,
+            padding: '8px 16px 0px',
+            borderRadius: '5px',
+            color: BORDER,
+            borderStyle: 'solid',
+            borderWidth: '2px',
+            borderColor: BORDER,
           }}
         >
-          {
-            usageJsons.map((usage: string) =>
-              <MenuItem value={usage} key={usage}>
-                {usage.substring(0, usage.indexOf('.'))}
-              </MenuItem>
-            )
-          }
-        </Select>
-        <Button 
-          onClick={rearrangeToCircle}
-          variant='contained'
-        >
-          Reset Node Positions
-        </Button>
-        <div>
-          Show Edges:
-          <Switch
-            color='default'
-            disabled={loading}
-            checked={!hidden}
-            onChange={handleChangeHidden}
-          />
+          <Select 
+            autoWidth
+            onChange={handleChangeFormat}
+            value={format}
+            style={{
+              backgroundColor: 'white',
+            }}
+          >
+            {
+              usageJsons.map((usage: string) =>
+                <MenuItem value={usage} key={usage}>
+                  {usage.substring(0, usage.indexOf('.'))}
+                </MenuItem>
+              )
+            }
+          </Select>
+          <Button 
+            onClick={rearrangeToCircle}
+            variant='contained'
+          >
+            Reset Node Positions
+          </Button>
+          <div>
+            Show Edges:
+            <Switch
+              color='default'
+              disabled={loading}
+              checked={!hidden}
+              onChange={handleChangeHidden}
+            />
+          </div>
         </div>
+        <Link sx={{position: 'absolute', top: '216px', left: '76px'}} onClick={handleOpenModal}>What is this?</Link>
       </div>
       <Drawer
         anchor='right'
