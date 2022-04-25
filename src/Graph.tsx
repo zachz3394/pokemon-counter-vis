@@ -2,9 +2,25 @@
 import React, { useEffect, useState } from "react";
 import Graph from "react-graph-vis";
 import { getCounterDataForGen } from "./readCounters";
-import { Box, Button, Drawer, Switch, Link, Modal, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { IconButton,
+  Button,
+  Drawer,
+  Switch,
+  Link,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  DialogTitle,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Typography,
+  useMediaQuery } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { DEFAULT, COUNTERED, COUNTERS, BORDER, SELECTED } from './colors';
 import { genAliasMap, metaAliasMap, pokemonAliasMap } from "./aliases";
+import { useTheme } from '@mui/material/styles';
 
 import '../node_modules/vis-network/dist/dist/vis-network.css';
 
@@ -34,6 +50,8 @@ const CounterGraph = () => {
   const [loading, setLoading] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [modal, setModal] = useState(true);
+  const theme = useTheme();
+  const fullScreenDialog = useMediaQuery(theme.breakpoints.down('md'));
 
   const [nodesDataset] = useState(new Map());
   const [edgesDataset] = useState(new Map());
@@ -204,7 +222,7 @@ const CounterGraph = () => {
       ) {
         return;
       }
-
+      console.log('toggled')
       setDrawer(open);
     };
   
@@ -275,14 +293,14 @@ const CounterGraph = () => {
         <Typography variant='h6'>
           Overview
         </Typography>
-        <Typography variant='body1' gutterBottom>
+        <Typography variant='body2' gutterBottom>
           This is a rough draft of a website created to visualize checks and counters between the Pokemon in each competitive metagame, as judged by Smogon analyses.
         </Typography>
 
         <Typography variant='h6'>
           How to Use
         </Typography>
-        <Typography variant='body1' gutterBottom>
+        <Typography variant='body2' gutterBottom>
           Click on a Pokemon to display its counters, along with the Pokemon that it counters. Pokemon that are countered by the currently selected Pokemon are colored in green, and Pokemon that counter the currently selected Pokemon are colored in red. Please read the disclaimer below regarding potentially erroneous/confusing interactions between pairs of Pokemon that appear to counter each other.
 
           Clicking on a Pokemon also opens a sidebar, which displays the counter information for that Pokemon. This sidebar also contains a link to the Smogon analysis page for that Pokemon, which is the source from which the Checks and Counters data were generated.
@@ -291,7 +309,7 @@ const CounterGraph = () => {
         <Typography variant='h6'>
           Methods
         </Typography>
-        <Typography variant='body1'>
+        <Typography variant='body2'>
           The data was extracted from the Checks and Counters section from Smogon's analyses, located at {<Link target='_blank' href='https://github.com/pkmn/smogon'>https://github.com/pkmn/smogon</Link>}. While the analyses in this repository are updated regularly, the current iteration of this website uses static analysis files.
 
           A Pokemon is considered to be countered by any Pokemon that appear in the Checks and Counters section of its analysis.
@@ -311,27 +329,27 @@ const CounterGraph = () => {
       }}>
         Copyright © 2022 Zachary Zhu
       </div>
-      <Modal
+      <Dialog
+        fullScreen={fullScreenDialog}
         open={modal}
         onClose={handleCloseModal}
       >
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 800,
-          maxWidth: '80vw',
-          maxHeight: '80vh',
-          bgcolor: 'background.paper',
-          borderRadius: '5px',
-          boxShadow: 24,
-          padding: '32px',
-          overflow: 'auto',
-        }}>
-          {modalContents()}
-        </Box>
-      </Modal>
+        <DialogTitle>
+          <Typography variant='h5'>
+            Smogon Checks and Counters Visualization
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {modalContents()}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
       <div
         style={{
           zIndex: 2,
@@ -411,6 +429,9 @@ const CounterGraph = () => {
           display: { xs: 'block', md: 'none' }
         }}
         open={drawer}
+        ModalProps={{
+          keepMounted: true,
+        }}
         onClose={toggleDrawer(false)}
       >
         {drawerContents()}
