@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Graph from "react-graph-vis";
 import { getCounterDataForGen } from "./readCounters";
-import { Button, Switch, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Button, Drawer, Switch, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { DEFAULT, COUNTERED, COUNTERS, BORDER, SELECTED } from './colors';
 import { genAliasMap, metaAliasMap, pokemonAliasMap } from "./aliases";
 
@@ -32,6 +32,7 @@ const CounterGraph = () => {
   const [drawn, setDrawn] = useState(0);
   const [prevNodeId, setPrevNodeId] = useState(undefined as any);
   const [loading, setLoading] = useState(false);
+  const [drawer, setDrawer] = useState(false);
 
   const [nodesDataset] = useState(new Map());
   const [edgesDataset] = useState(new Map());
@@ -50,7 +51,7 @@ const CounterGraph = () => {
     edgesDataset.clear()
 
     counterData.forEach((counteredBy: string[], name: string) => {
-      nodesDataset.set(name, {id: name, label: name, title: reconstructSmogonLink(name) });
+      nodesDataset.set(name, {id: name, label: name });
       edgesDataset.set(name, counteredBy.map((counter: any) => {
         return { from: counter, to: name, hidden: hidden };
       }));
@@ -100,13 +101,17 @@ const CounterGraph = () => {
     }
   }
 
+  const getOriginalName = (nodeId: string) => {
+    return (reverseAliasMap.get(nodeId) || nodeId).replaceAll(' ', '-').toLowerCase();
+  }
+
   const reconstructSmogonLink = (nodeId: string) => {
     const baseUrl = 'https://www.smogon.com/dex';
     const formatGen = format.substring(0, 4);
     const formatMeta = format.substring(4, format.indexOf('.'))
     const genCode = genAliasMap.get(formatGen);
     const metaCode = metaAliasMap.get(formatMeta);
-    const pokemonCode = (reverseAliasMap.get(nodeId) || nodeId).replaceAll(' ', '-').toLowerCase();
+    const pokemonCode = getOriginalName(nodeId);
     return `${baseUrl}/${genCode}/pokemon/${pokemonCode}/${metaCode}`;
   }
 
@@ -152,6 +157,7 @@ const CounterGraph = () => {
       if (event.nodes.length > 0) {
         const node: string = event.nodes[0];
         selectNode(node);
+        setDrawer(true);
         setPrevNodeId(node);
       }
     },
@@ -159,12 +165,14 @@ const CounterGraph = () => {
       const node = event.previousSelection.nodes[0].id;
       deselectNode(node);
       setPrevNodeId(undefined);
+      setDrawer(false);
     },
     dragStart: (event: any) => {
       if (event.nodes.length > 0) {
         const node: string = event.nodes[0];
         if (node !== prevNodeId) {
           deselectNode(prevNodeId);
+          setDrawer(false);
         }
       }
     }
@@ -179,6 +187,47 @@ const CounterGraph = () => {
   const handleChangeHidden = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
     setHidden(!event.target.checked);
+  }
+
+  const toggleDrawer =
+    (open: boolean) =>
+    (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' ||
+          (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return;
+      }
+
+      setDrawer(open);
+    };
+  
+  const drawerContents = () => {
+    if (prevNodeId) {
+      const originalName = getOriginalName(prevNodeId);
+      return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '200px',
+          padding: '32px 16px',
+          gap: '16px',
+        }}
+      >
+        <Typography variant='h5'>
+          {prevNodeId}
+        </Typography>
+        <img alt={`${prevNodeId}.gif`} src={`https://www.smogon.com/dex/media/sprites/xy/${originalName}.gif`} />
+        <Button variant='outlined' target='_blank' href={reconstructSmogonLink(prevNodeId)}>
+          Smogon Analysis
+        </Button>
+      </div>
+      )
+    }
   }
 
   return (
@@ -249,6 +298,28 @@ const CounterGraph = () => {
           />
         </div>
       </div>
+      <Drawer
+        anchor='right'
+        variant='temporary'
+        sx={{
+          display: { xs: 'block', sm: 'none' }
+        }}
+        open={drawer}
+        onClose={toggleDrawer(false)}
+      >
+        {drawerContents()}
+      </Drawer>
+      <Drawer
+        anchor='right'
+        variant='persistent'
+        sx={{
+          display: { xs: 'none', sm: 'block' },
+        }}
+        open={drawer}
+        onClose={toggleDrawer(false)}
+      >
+        {drawerContents()}
+      </Drawer>
       <Graph
         graph={{nodes, edges}}
         options={options}
