@@ -26,6 +26,14 @@ import '../node_modules/vis-network/dist/dist/vis-network.css';
 
 
 const usageJsons = [
+  'gen7anythinggoes.json',
+  'gen7lc.json',
+  'gen7ou.json',
+  'gen7pu.json',
+  'gen7ru.json',
+  'gen7ubers.json',
+  'gen7uu.json',
+  'gen7zu.json',
   'gen8anythinggoes.json',
   'gen8lc.json',
   'gen8nationaldex.json',
@@ -47,7 +55,7 @@ const CounterGraph = () => {
   const [hidden, setHidden] = useState(true);
   const [drawn, setDrawn] = useState(0);
   const [prevNodeId, setPrevNodeId] = useState(undefined as any);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const [modal, setModal] = useState(true);
   const theme = useTheme();
@@ -113,15 +121,16 @@ const CounterGraph = () => {
   }
 
   const resizeOnce = () => {
-    setLoading(false);
     if (drawn < 5) {
       rearrangeToCircle();
       setDrawn((prev: number) => prev + 1);
+    } else {
+      setLoading(false);
     }
   }
 
   const getOriginalName = (nodeId: string) => {
-    return (reverseAliasMap.get(nodeId) || nodeId).replaceAll(' ', '-').toLowerCase();
+    return (reverseAliasMap.get(nodeId) || nodeId).replaceAll(' ', '-').toLowerCase().replaceAll('%', '');
   }
 
   const reconstructSmogonLink = (nodeId: string) => {
@@ -247,12 +256,13 @@ const CounterGraph = () => {
           padding: '32px 16px',
           gap: '24px',
           width: fullScreenDialog ? undefined : '320px',
+          overflowX: 'hidden',
         }}
       >
         <Typography variant='h4'>
           {prevNodeId}
         </Typography>
-        <img alt={`${prevNodeId}.gif`} src={`https://www.smogon.com/dex/media/sprites/xy/${originalName}.gif`} />
+        <img alt={`${prevNodeId}.gif`} src={`https://www.smogon.com/dex/media/sprites/xy/${originalName}.gif`} width='auto'/>
         <Button variant='outlined' target='_blank' href={reconstructSmogonLink(prevNodeId)}>
           Smogon Analysis
         </Button>
@@ -260,6 +270,7 @@ const CounterGraph = () => {
           display: 'flex',
           width: '100%',
           justifyContent: 'space-around',
+          overflowY: 'auto',
         }}>
           <div style={{
             display: 'flex',
