@@ -171,10 +171,10 @@ const CounterGraph = () => {
 
   const selectNode = (nodeId: string) => {
     recolorNodesTo([nodeId], SELECTED);
-    const connectedFrom = network.getConnectedNodes(nodeId, 'from');
-    recolorNodesTo(connectedFrom, COUNTERED);
     const pointsTo = network.getConnectedNodes(nodeId, 'to');
     recolorNodesTo(pointsTo, COUNTERS);
+    const connectedFrom = network.getConnectedNodes(nodeId, 'from');
+    recolorNodesTo(connectedFrom, COUNTERED);
     const connectedEdges = network.getConnectedEdges(nodeId);
     updateEdges(connectedEdges, false);
   }
