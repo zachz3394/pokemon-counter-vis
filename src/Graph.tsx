@@ -73,6 +73,7 @@ const CounterGraph = () => {
 
   useEffect(() => {
     const counterData = getCounterDataForGen(format);
+    const idArray = Array.from(counterData.keys()).sort()
 
     nodesDataset.clear()
     edgesDataset.clear()
@@ -80,7 +81,13 @@ const CounterGraph = () => {
     counterData.forEach((counteredBy: string[], name: string) => {
       nodesDataset.set(name, {id: name, label: name });
       edgesDataset.set(name, counteredBy.map((counter: any) => {
-        return { from: counter, to: name, hidden: hidden };
+        const [direction, roundness] = getEdgeDirection(idArray, counter, name);
+        return { from: counter, to: name, hidden: hidden, smooth: {
+            enabled: true,
+            type: direction,
+            roundness,
+          }
+        };
       }));
     });
 
@@ -88,6 +95,19 @@ const CounterGraph = () => {
     setNodes(Array.from(nodesDataset.values()));
     setEdges(Array.from(edgesDataset.values()).flat());
   }, [nodesDataset, edgesDataset, format, hidden]);
+
+  const calcRoundness = (idArray: string[], dist: number) => {
+    return (1 - (dist / (idArray.length / 2))) * (2/3)
+  }
+
+  const getEdgeDirection = (idArray: string[], startId: string, endId: string) => {
+    const normEnd = ((idArray.indexOf(endId) - idArray.indexOf(startId)) % idArray.length + idArray.length) % idArray.length;
+    if (normEnd < idArray.length / 2) {
+      return ['curvedCCW', calcRoundness(idArray, normEnd)]
+    } else {
+      return ['curvedCW', calcRoundness(idArray, idArray.length - normEnd)]
+    }
+  }
 
   const options = {
     autoResize: true,
