@@ -33,9 +33,9 @@ const theme: Theme = createTheme({
     },
   },
   nodes: {
-    default: '#fa5151',
+    default: '#FA5151',
     counters: '#B4CFB0',
-    countered: '#9ADCFF',
+    countered: '#FFB800',
   },
 });
 
