@@ -85,7 +85,7 @@ const CounterGraph = () => {
         return { from: counter, to: name, hidden: hidden, smooth: {
             enabled: true,
             type: direction,
-            roundness,
+            roundness: roundness,
           }
         };
       }));
@@ -126,6 +126,10 @@ const CounterGraph = () => {
     nodes: {
       size: 20,
       shape: 'dot',
+      fixed: {
+        x: true,
+        y: true,
+      }
     }
   };
 
@@ -406,7 +410,7 @@ const CounterGraph = () => {
       >
         <div
           style={{
-            height: '192px',
+            height: '128px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-around',
@@ -435,12 +439,6 @@ const CounterGraph = () => {
               )
             }
           </Select>
-          <Button 
-            onClick={rearrangeToCircle}
-            variant='contained'
-          >
-            Reset Node Positions
-          </Button>
           <div>
             Show Edges:
             <Switch
@@ -451,7 +449,10 @@ const CounterGraph = () => {
             />
           </div>
         </div>
-        <Link sx={{position: 'absolute', top: '216px', left: '76px'}} onClick={handleOpenModal}>What is this?</Link>
+        <div style={{paddingTop: '16px'}}>
+        <Link onClick={handleOpenModal}>What is this?</Link>
+        </div>
+
       </div>
       <Dialog
         fullScreen={true}
