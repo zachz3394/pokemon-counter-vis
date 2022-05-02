@@ -462,6 +462,7 @@ const CounterGraph = () => {
         position: 'absolute',
         left: '16px',
         bottom: '16px',
+        zIndex: 1,
       }}>
         Copyright © 2022 Zachary Zhu
       </div>
