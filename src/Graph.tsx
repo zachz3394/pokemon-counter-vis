@@ -18,7 +18,6 @@ import { IconButton,
   Typography,
   useMediaQuery } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { DEFAULT, COUNTERED, COUNTERS, BORDER, SELECTED } from './colors';
 import { genAliasMap, metaAliasMap, pokemonAliasMap } from "./aliases";
 import { useTheme } from '@mui/material/styles';
 
@@ -79,7 +78,7 @@ const CounterGraph = () => {
     edgesDataset.clear()
 
     counterData.forEach((counteredBy: string[], name: string) => {
-      nodesDataset.set(name, {id: name, label: name });
+      nodesDataset.set(name, {id: name, label: name, color: theme.nodes.default, ctxRenderer: ctxRenderer, shape: 'custom' });
       edgesDataset.set(name, counteredBy.map((counter: any) => {
         const [direction, roundness] = getEdgeDirection(idArray, counter, name);
         return { from: counter, to: name, hidden: hidden, smooth: {
@@ -109,6 +108,49 @@ const CounterGraph = () => {
     }
   }
 
+  function ctxRenderer(all: any) {
+    const {ctx, x, y, style, state, label} = all;
+    const size = style.size;
+    const color = style.color;
+    return {
+        drawNode() {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = size / 20;
+          if (state.selected) {
+            ctx.lineWidth = size / 5;
+          }
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(x, y, size, Math.PI, 2 * Math.PI);
+          ctx.closePath()
+          ctx.fill();
+
+          ctx.fillStyle = 'white';
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, Math.PI);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, 2 * Math.PI);
+          ctx.closePath();
+          ctx.stroke();
+        },
+        drawExternalLabel() {
+          // const radius = 850;
+          // const d = 2 * Math.PI / ids.length
+          // const i = ids.indexOf(label);
+          // const labx = radius * Math.cos(d * i - 0.5 * Math.PI)
+          // const laby = radius * Math.sin(d * i - 0.5 * Math.PI)
+
+          // ctx.fillStyle = 'black';
+          // ctx.font = 'normal 12px sans-serif';
+          // ctx.fillText(label, labx, laby);
+        },
+        nodeDimensions: { width: size * 2, height: size * 2 },
+    }
+  }
+
   const options = {
     autoResize: true,
     layout: {
@@ -116,7 +158,7 @@ const CounterGraph = () => {
       hierarchical: false,
     },
     edges: {
-      color: '#000000',
+      color: theme.nodes.default,
     },
     height: '100%',
     width: '100%',
@@ -137,8 +179,8 @@ const CounterGraph = () => {
     const radius = 800;
     const d = 2 * Math.PI / ids.length
     ids.forEach(function(id, i) {
-      var x = radius * Math.cos(d * i - 0.5 * Math.PI)
-      var y = radius * Math.sin(d * i - 0.5 * Math.PI)
+      const x = radius * Math.cos(d * i - 0.5 * Math.PI)
+      const y = radius * Math.sin(d * i - 0.5 * Math.PI)
       network!.moveNode(id, x, y)
     });
     network.fit();
@@ -151,6 +193,34 @@ const CounterGraph = () => {
     } else {
       setLoading(false);
     }
+  }
+
+  const prepCanvas = (ctx: any) => {
+    ctx.save();
+    ctx.fillStyle = theme.palette.primary.light;
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 750, 1 * Math.PI, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(0, 0, 750, 0, Math.PI);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = theme.palette.primary.light;
+    ctx.beginPath();
+    ctx.arc(0, 0, 150, 0, Math.PI);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(0, 0, 100, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
   }
 
   const getOriginalName = (nodeId: string) => {
@@ -167,7 +237,7 @@ const CounterGraph = () => {
     return `${baseUrl}/${genCode}/pokemon/${pokemonCode}/${metaCode}`;
   }
 
-  const recolorNodesTo = (nodeIds: string[], hexCode: string) => {
+  const recolorNodesTo = (nodeIds: string[], hexCode: any) => {
     for (const nodeId of nodeIds) {
       nodesDataset.set(nodeId, {
         id: nodeId,
@@ -187,24 +257,24 @@ const CounterGraph = () => {
   const deselectNode = (nodeId: string) => {
     if (nodesDataset.has(nodeId)) {
       const allConnected = network.getConnectedNodes(nodeId);
-      recolorNodesTo([nodeId, ...allConnected], DEFAULT);
+      recolorNodesTo([nodeId, ...allConnected], theme.nodes.default);
       const connectedEdges = network.getConnectedEdges(nodeId);
       updateEdges(connectedEdges, hidden);
     }
   }
 
   const selectNode = (nodeId: string) => {
-    recolorNodesTo([nodeId], SELECTED);
     const pointsTo = network.getConnectedNodes(nodeId, 'to');
-    recolorNodesTo(pointsTo, COUNTERS);
+    recolorNodesTo(pointsTo, theme.nodes.counters);
     const connectedFrom = network.getConnectedNodes(nodeId, 'from');
-    recolorNodesTo(connectedFrom, COUNTERED);
+    recolorNodesTo(connectedFrom, theme.nodes.countered);
     const connectedEdges = network.getConnectedEdges(nodeId);
     updateEdges(connectedEdges, false);
   }
 
   const events = {
     afterDrawing: resizeOnce,
+    beforeDrawing: prepCanvas,
     click: (event: any) => {
       if (event.nodes.length > 0) {
         const node: string = event.nodes[0];
@@ -265,10 +335,10 @@ const CounterGraph = () => {
       const connectedFrom = network.getConnectedNodes(prevNodeId, 'from');
       const connectedTo = network.getConnectedNodes(prevNodeId, 'to');
       const goodVs = connectedTo.sort().map((nodeId: string) => {
-        return (<Typography align='center'>{nodeId}</Typography>);
+        return (<Typography key={nodeId+'-good'} align='center'>{nodeId}</Typography>);
       });
       const badVs = connectedFrom.sort().map((nodeId: string) => {
-        return (<Typography align='center'>{nodeId}</Typography>);
+        return (<Typography key={nodeId+'-bad'} align='center'>{nodeId}</Typography>);
       });
       return (
       <div
@@ -370,12 +440,12 @@ const CounterGraph = () => {
         onClose={handleCloseModal}
       >
         <DialogTitle>
-          <Typography variant='h5'>
+          <Typography variant='h5' component={'div'}>
             Smogon Checks and Counters Visualization
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText component={'div'}>
             {modalContents()}
           </DialogContentText>
         </DialogContent>
@@ -410,17 +480,17 @@ const CounterGraph = () => {
       >
         <div
           style={{
-            height: '128px',
+            height: '192px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-around',
-            backgroundColor: DEFAULT,
+            backgroundColor: 'white',
+            borderColor: theme.palette.primary.main as any,
+            color: theme.palette.primary.main as any,
             padding: '8px 16px 0px',
             borderRadius: '5px',
-            color: BORDER,
             borderStyle: 'solid',
             borderWidth: '2px',
-            borderColor: BORDER,
           }}
         >
           <Select 
@@ -439,10 +509,16 @@ const CounterGraph = () => {
               )
             }
           </Select>
+          <Button
+            onClick={rearrangeToCircle}
+            variant='contained'
+          >
+            Reset View
+          </Button>
           <div>
             Show Edges:
             <Switch
-              color='default'
+              color='primary'
               disabled={loading}
               checked={!hidden}
               onChange={handleChangeHidden}
