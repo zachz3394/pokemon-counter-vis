@@ -50,7 +50,7 @@ const CounterGraph = () => {
   const [network, setNetwork] = useState({} as any);
   const [nodes, setNodes] = useState([] as any[]);
   const [edges, setEdges] = useState([] as any[]);
-  const [format, setFormat] = useState('gen8ou.json');
+  const [format, setFormat] = useState('gen7ou.json');
   const [hidden, setHidden] = useState(true);
   const [drawn, setDrawn] = useState(0);
   const [prevNodeId, setPrevNodeId] = useState(undefined as any);
@@ -137,19 +137,46 @@ const CounterGraph = () => {
           ctx.stroke();
         },
         drawExternalLabel() {
+          ctx.font = 'normal 18px sans-serif';
+          ctx.lineWidth = size / 20;
+          if (state.selected) {
+            ctx.font = 'bold 18px sans-serif';
+            ctx.lineWidth = size / 10;
+          }
+
+          ctx.fillStyle = 'black';
+          ctx.strokeStyle = 'black';
+
           const angle = Math.atan2(y, x);
-          const radius = 825;
-          const labx = radius * Math.cos(angle);
-          const laby = radius * Math.sin(angle);
+          const txtRadius = 875;
+          const labx = txtRadius * Math.cos(angle);
+          let laby = txtRadius * Math.sin(angle);
+          const textWidth = ctx.measureText(label).width;
 
           if (Math.abs(angle) < Math.PI / 2) {
             ctx.textAlign = 'left';
           } else {
             ctx.textAlign = 'right';
           }
-          ctx.fillStyle = 'black';
-          ctx.font = 'normal 18px sans-serif';
+          if (angle > 0) {
+            laby += 9;
+          } else {
+            laby -= 9;
+          }
           ctx.fillText(label, labx, laby);
+
+          const tagRadius = 820;
+          const tagx = tagRadius * Math.cos(angle);
+          const tagy = tagRadius * Math.sin(angle);
+          ctx.beginPath();
+          ctx.moveTo(tagx, tagy);
+          ctx.lineTo(labx, laby + 3);
+          if (Math.abs(angle) < Math.PI / 2) {
+            ctx.lineTo(labx + textWidth, laby + 3);
+          } else {
+            ctx.lineTo(labx - textWidth, laby + 3);
+          }
+          ctx.stroke();
         },
         nodeDimensions: { width: size * 2, height: size * 2 },
     }
