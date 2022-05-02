@@ -366,10 +366,10 @@ const CounterGraph = () => {
       const connectedFrom = network.getConnectedNodes(prevNodeId, 'from');
       const connectedTo = network.getConnectedNodes(prevNodeId, 'to');
       const goodVs = connectedTo.sort().map((nodeId: string) => {
-        return (<Typography key={nodeId+'-good'} align='center'>{nodeId}</Typography>);
+        return (<Typography key={nodeId+'-good'} align='left'>{nodeId}</Typography>);
       });
       const badVs = connectedFrom.sort().map((nodeId: string) => {
-        return (<Typography key={nodeId+'-bad'} align='center'>{nodeId}</Typography>);
+        return (<Typography key={nodeId+'-bad'} align='left'>{nodeId}</Typography>);
       });
       return (
       <div
@@ -380,7 +380,7 @@ const CounterGraph = () => {
           justifyContent: 'center',
           padding: '32px 16px',
           gap: '24px',
-          width: fullScreenDialog ? undefined : '320px',
+          width: fullScreenDialog ? undefined : '300px',
           overflowX: 'hidden',
         }}
       >
@@ -401,8 +401,10 @@ const CounterGraph = () => {
             display: 'flex',
             flex: 1,
             flexDirection: 'column',
+            backgroundColor: theme.nodes.countered + '50',
+            padding: '0px 8px',
           }}>
-            <Typography variant='h6' align='center'>
+            <Typography variant='h6' align='left'>
               Good vs:
             </Typography>
             {goodVs.length > 0 ? goodVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
@@ -411,8 +413,10 @@ const CounterGraph = () => {
             display: 'flex',
             flex: 1,
             flexDirection: 'column',
+            backgroundColor: theme.nodes.counters + '50',
+            padding: '0px 8px',
           }}>
-            <Typography variant='h6' align='center'>
+            <Typography variant='h6' align='left'>
               Bad vs:
             </Typography>
             {badVs.length > 0 ? badVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
@@ -587,7 +591,7 @@ const CounterGraph = () => {
         variant='persistent'
         sx={{
           display: { xs: 'none', sm: 'block' },
-          width: '320px',
+          width: '300px',
         }}
         open={drawer}
         onClose={toggleDrawer(false)}
