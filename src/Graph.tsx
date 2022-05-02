@@ -378,48 +378,79 @@ const CounterGraph = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '32px 16px',
-          gap: '24px',
-          width: fullScreenDialog ? undefined : '300px',
+          width: fullScreenDialog ? undefined : '320px',
           overflowX: 'hidden',
         }}
       >
-        <Typography variant='h4'>
-          {prevNodeId}
-        </Typography>
-        <img alt={`${prevNodeId}.gif`} src={`https://www.smogon.com/dex/media/sprites/xy/${originalName}.gif`} width='auto'/>
-        <Button variant='outlined' target='_blank' href={reconstructSmogonLink(prevNodeId)}>
-          Smogon Analysis
-        </Button>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px 16px',
+            gap: '24px',
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            width: fullScreenDialog ? undefined : '320px',
+            minHeight: '300px',
+            height: '300px',
+          }}
+        >
+          <Typography variant='h4'>
+            {prevNodeId}
+          </Typography>
+          <img alt={`${prevNodeId}.gif`} src={`https://www.smogon.com/dex/media/sprites/xy/${originalName}.gif`} width='auto'/>
+          <Button variant='outlined' target='_blank' href={reconstructSmogonLink(prevNodeId)}>
+            Smogon Analysis
+          </Button>
+        </div>
         <div style={{
           display: 'flex',
           width: '100%',
           justifyContent: 'space-around',
-          overflowY: 'auto',
+          overflowY: 'hidden',
         }}>
-          <div style={{
-            display: 'flex',
-            flex: 1,
-            flexDirection: 'column',
-            backgroundColor: theme.nodes.countered + '50',
-            padding: '0px 8px',
-          }}>
-            <Typography variant='h6' align='left'>
-              Good vs:
-            </Typography>
-            {goodVs.length > 0 ? goodVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
+          <div
+            style={{
+              display: 'flex',
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: theme.nodes.countered + '50',
+              paddingLeft: '8px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                overflowY: 'auto',
+              }}>
+              <Typography variant='h6' align='left'>
+                Good vs:
+              </Typography>
+              {goodVs.length > 0 ? goodVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
+            </div>
           </div>
-          <div style={{
-            display: 'flex',
-            flex: 1,
-            flexDirection: 'column',
-            backgroundColor: theme.nodes.counters + '50',
-            padding: '0px 8px',
-          }}>
-            <Typography variant='h6' align='left'>
-              Bad vs:
-            </Typography>
-            {badVs.length > 0 ? badVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
+          <div
+            style={{
+              display: 'flex',
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: theme.nodes.counters + '50',
+              paddingLeft: '8px',
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+            }}>
+              <Typography variant='h6' align='left'>
+                Bad vs:
+              </Typography>
+              {badVs.length > 0 ? badVs : <Typography align='center' variant='caption'>Missing Data</Typography>}
+            </div>
           </div>
         </div>
       </div>
@@ -591,7 +622,7 @@ const CounterGraph = () => {
         variant='persistent'
         sx={{
           display: { xs: 'none', sm: 'block' },
-          width: '300px',
+          width: '320px',
         }}
         open={drawer}
         onClose={toggleDrawer(false)}
