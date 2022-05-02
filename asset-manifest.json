@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/pokemon-counter-vis/static/css/main.f191cfe7.css",
-    "main.js": "/pokemon-counter-vis/static/js/main.7d27106c.js",
+    "main.js": "/pokemon-counter-vis/static/js/main.82066776.js",
     "static/js/787.cda612ba.chunk.js": "/pokemon-counter-vis/static/js/787.cda612ba.chunk.js",
     "index.html": "/pokemon-counter-vis/index.html",
     "main.f191cfe7.css.map": "/pokemon-counter-vis/static/css/main.f191cfe7.css.map",
-    "main.7d27106c.js.map": "/pokemon-counter-vis/static/js/main.7d27106c.js.map",
+    "main.82066776.js.map": "/pokemon-counter-vis/static/js/main.82066776.js.map",
     "787.cda612ba.chunk.js.map": "/pokemon-counter-vis/static/js/787.cda612ba.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f191cfe7.css",
-    "static/js/main.7d27106c.js"
+    "static/js/main.82066776.js"
   ]
 }
