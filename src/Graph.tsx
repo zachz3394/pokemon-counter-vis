@@ -137,15 +137,19 @@ const CounterGraph = () => {
           ctx.stroke();
         },
         drawExternalLabel() {
-          // const radius = 850;
-          // const d = 2 * Math.PI / ids.length
-          // const i = ids.indexOf(label);
-          // const labx = radius * Math.cos(d * i - 0.5 * Math.PI)
-          // const laby = radius * Math.sin(d * i - 0.5 * Math.PI)
+          const angle = Math.atan2(y, x);
+          const radius = 825;
+          const labx = radius * Math.cos(angle);
+          const laby = radius * Math.sin(angle);
 
-          // ctx.fillStyle = 'black';
-          // ctx.font = 'normal 12px sans-serif';
-          // ctx.fillText(label, labx, laby);
+          if (Math.abs(angle) < Math.PI / 2) {
+            ctx.textAlign = 'left';
+          } else {
+            ctx.textAlign = 'right';
+          }
+          ctx.fillStyle = 'black';
+          ctx.font = 'normal 18px sans-serif';
+          ctx.fillText(label, labx, laby);
         },
         nodeDimensions: { width: size * 2, height: size * 2 },
     }
@@ -187,7 +191,7 @@ const CounterGraph = () => {
   }
 
   const resizeOnce = () => {
-    if (drawn < 5) {
+    if (drawn < 10) {
       rearrangeToCircle();
       setDrawn((prev: number) => prev + 1);
     } else {
